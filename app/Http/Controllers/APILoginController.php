@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\API\BaseController as BaseController;
 
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -12,7 +13,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 use function Laravel\Prompts\error;
 
-class APILoginController extends Controller
+class APILoginController extends BaseController
 {
     public function login(Request $request){
 
@@ -22,7 +23,8 @@ class APILoginController extends Controller
             ]);
     
             if ($validator->fails()) {
-                return response()->json($validator->errors());
+                return $this->sendError('Error validation',$validator->errors());
+
             }
     
 
@@ -32,18 +34,22 @@ class APILoginController extends Controller
 
                 if(! $token= JWTAuth::attempt($credentilas)){
 
-                    return response()->json(['error'=>'invalid username & password'],[401]);
+                    return $this->sendError('invalid username & password',$validator->errors());
+
+                   // return response()->json(['error'=>'invalid username & password'],[401]);
 
                 }
 
             }catch(JWTException $e){
-                return response()->json(['error'=>"could not create token"],[500]);
+               // return response()->json(['error'=>"could not create token"],[500]);
+                return $this->sendError('could not create token',$validator->errors());
+
 
             }
 
 
 
-            return response()->json(compact('token'));        
+            return $this->sendResponse($token,"login successfully");
 
 
            

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\API\BaseController as BaseController;
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -10,7 +12,7 @@ use Response;
 
 
 
-class APIRegisterController extends Controller
+class APIRegisterController extends BaseController
 {
     public function register(Request $request){
         $validator = Validator::make($request->all(), [
@@ -20,7 +22,8 @@ class APIRegisterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return $this->sendError('Error validation',$validator->errors());
+            
         }
 
         // Créer l'utilisateur et récupérer l'objet créé
@@ -33,6 +36,8 @@ class APIRegisterController extends Controller
         // Générer le token pour cet utilisateur
         $token = JWTAuth::fromUser($user);
 
-        return response()->json(compact('token'));        
+        
+        return $this->sendResponse($token,"user created successfully");
+       
     }
 }
